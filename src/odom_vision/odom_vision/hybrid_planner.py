@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Hybrid A* + APF Path Planner for MAVROS.
+
 Combines A* global path planning with APF local obstacle avoidance.
 
 Usage:
@@ -97,7 +98,7 @@ class HybridPlanner(Node):
         self.get_logger().info('Waiting for current position...')
 
     def pose_callback(self, msg: PoseStamped):
-        """Update current position"""
+        """Update current position."""
         self.current_pose = msg.pose
 
         # Plan path once we have current position
@@ -105,7 +106,7 @@ class HybridPlanner(Node):
             self.plan_path()
 
     def distance_callback(self, msg: Float32):
-        """Update obstacle distance from depth sensor"""
+        """Update obstacle distance from depth sensor."""
         self.obstacle_distance = msg.data
 
         # Replan if obstacle is very close and blocking the path
@@ -117,7 +118,7 @@ class HybridPlanner(Node):
             self.plan_path()
 
     def plan_path(self):
-        """Run A* to find path from current position to goal"""
+        """Run A* to find path from current position to goal."""
         if self.current_pose is None:
             return
 
@@ -145,7 +146,8 @@ class HybridPlanner(Node):
 
     def astar(self, start, goal):
         """
-        A* pathfinding algorithm for 3D space.
+        Run A* pathfinding in 3D space.
+
         Returns list of (x, y, z) waypoints.
         """
         # Convert to grid coordinates
@@ -168,7 +170,7 @@ class HybridPlanner(Node):
             return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2)
 
         def get_neighbors(pos):
-            """Get 26-connected neighbors (all directions in 3D)"""
+            """Get 26-connected neighbors (all directions in 3D)."""
             neighbors = []
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
@@ -226,7 +228,7 @@ class HybridPlanner(Node):
         return None  # No path found
 
     def simplify_path(self, path):
-        """Remove unnecessary intermediate waypoints"""
+        """Remove unnecessary intermediate waypoints."""
         if len(path) <= 2:
             return path
 
@@ -258,7 +260,7 @@ class HybridPlanner(Node):
         return simplified
 
     def publish_path_visualization(self):
-        """Publish path for RViz visualization"""
+        """Publish path for RViz visualization."""
         path_msg = Path()
         path_msg.header.stamp = self.get_clock().now().to_msg()
         path_msg.header.frame_id = 'map'
@@ -277,6 +279,7 @@ class HybridPlanner(Node):
     def compute_apf_force(self, target_pos):
         """
         Compute Artificial Potential Field force vector.
+
         Combines attraction to target and repulsion from obstacles.
         """
         # Attraction force towards target waypoint
@@ -311,7 +314,7 @@ class HybridPlanner(Node):
         return fx, fy, fz
 
     def publish_setpoint(self):
-        """Publish current waypoint setpoint with APF obstacle avoidance"""
+        """Publish current waypoint setpoint with APF obstacle avoidance."""
         if not self.path or self.current_pose is None:
             return
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Converts Gazebo odometry to MAVROS vision_pose format.
+
 ros2 topic echo /odom --field pose.pose.position --once
 Subscribes to: /odom (nav_msgs/msg/Odometry) for X/Y/Z
 Publishes to: /mavros/vision_pose/pose (geometry_msgs/msg/PoseStamped)

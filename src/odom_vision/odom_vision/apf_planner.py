@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Artificial Potential Field (APF) Node for MAVROS.
-Subscribes to /depth_distance and /mavros/local_position/pose, publishes setpoints to /mavros/setpoint_position/local.
+
+Subscribes to /depth_distance and /mavros/local_position/pose,
+publishes setpoints to /mavros/setpoint_position/local.
 Combines goal attraction and obstacle repulsion for collision avoidance.
 """
 

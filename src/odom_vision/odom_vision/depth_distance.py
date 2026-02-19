@@ -27,9 +27,7 @@ class DepthDistanceNode(Node):
             
 
     def depth_callback(self, msg):
-        """
-        Callback function to process a 32FC1 depth image message.
-        """
+        """Process a 32FC1 depth image message."""
         try:
             # Convert the ROS Image message to a NumPy array
             # msg.data is a byte array; we view it as 32-bit floats

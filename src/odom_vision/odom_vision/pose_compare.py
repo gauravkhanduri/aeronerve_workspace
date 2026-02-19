@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Pose Comparison Node for Visual Odometry Debugging.
+
 Compares vision_pose with local_position to check alignment.
 
 Run: python3 pose_compare.py
@@ -50,7 +51,7 @@ class PoseCompare(Node):
         self.local_pose = msg.pose
 
     def quaternion_to_euler(self, q):
-        """Convert quaternion to euler angles (roll, pitch, yaw)"""
+        """Convert quaternion to euler angles (roll, pitch, yaw)."""
         # Roll (x-axis rotation)
         sinr_cosp = 2 * (q.w * q.x + q.y * q.z)
         cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y)

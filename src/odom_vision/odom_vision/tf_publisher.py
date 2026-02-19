@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 TF Publisher for Visual Odometry frames.
+
 Publishes TF frames for RViz visualization and frame alignment checking.
 
 Run: python3 tf_publisher.py
@@ -67,7 +68,7 @@ class TFPublisher(Node):
         self.get_logger().info('Publishing frames: map, odom, base_link, vision_pose, local_pose, camera_link')
 
     def publish_static_transforms(self):
-        """Publish static transforms"""
+        """Publish static transforms."""
         transforms = []
         
         # map -> odom (identity for now)
@@ -99,7 +100,7 @@ class TFPublisher(Node):
         self.static_tf_broadcaster.sendTransform(transforms)
 
     def vision_pose_cb(self, msg: PoseStamped):
-        """Publish TF for vision pose"""
+        """Publish TF for vision pose."""
         t = TransformStamped()
         t.header.stamp = msg.header.stamp
         t.header.frame_id = 'map'
@@ -111,7 +112,7 @@ class TFPublisher(Node):
         self.tf_broadcaster.sendTransform(t)
 
     def local_pose_cb(self, msg: PoseStamped):
-        """Publish TF for local (fused) pose"""
+        """Publish TF for local (fused) pose."""
         t = TransformStamped()
         t.header.stamp = msg.header.stamp
         t.header.frame_id = 'map'
@@ -123,7 +124,7 @@ class TFPublisher(Node):
         self.tf_broadcaster.sendTransform(t)
 
     def odom_cb(self, msg: Odometry):
-        """Publish TF for odometry -> base_link"""
+        """Publish TF for odometry -> base_link."""
         t = TransformStamped()
         t.header.stamp = msg.header.stamp
         t.header.frame_id = 'odom'

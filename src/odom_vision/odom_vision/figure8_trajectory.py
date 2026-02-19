@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Figure-8 trajectory publisher for MAVROS.
+
 Publishes continuous setpoints to fly a figure-8 pattern.
 """
 
@@ -46,7 +47,7 @@ class Figure8Trajectory(Node):
         self.get_logger().info(f'Center: ({self.center_x}, {self.center_y}), Speed: {self.speed}')
 
     def publish_setpoint(self):
-        """Publish figure-8 trajectory setpoint"""
+        """Publish figure-8 trajectory setpoint."""
         pose = PoseStamped()
         pose.header.stamp = self.get_clock().now().to_msg()
         pose.header.frame_id = 'map'

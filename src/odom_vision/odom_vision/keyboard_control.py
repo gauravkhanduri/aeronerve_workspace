@@ -49,7 +49,7 @@ class KeyboardController(Node):
         self.pub.publish(pose)
 
     def move(self, forward, right):
-        """ forward/right in body frame (meters)."""
+        """Move forward/right in body frame (meters)."""
         yaw = self.current_yaw
         self.target_x += forward * math.cos(yaw) - right * math.sin(yaw)
         self.target_y += forward * math.sin(yaw) + right * math.cos(yaw)

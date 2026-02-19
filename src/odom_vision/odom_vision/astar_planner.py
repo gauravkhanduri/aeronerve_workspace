@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 A* Path Planning Node for MAVROS.
+
 Plans and executes paths from current position to goal.
 
 Usage:
@@ -79,7 +80,7 @@ class AStarPlanner(Node):
         self.get_logger().info('Waiting for current position...')
 
     def pose_callback(self, msg: PoseStamped):
-        """Update current position"""
+        """Update current position."""
         self.current_pose = msg.pose
         
         # Plan path once we have current position
@@ -87,7 +88,7 @@ class AStarPlanner(Node):
             self.plan_path()
 
     def plan_path(self):
-        """Run A* to find path from current position to goal"""
+        """Run A* to find path from current position to goal."""
         start = (
             self.current_pose.position.x,
             self.current_pose.position.y,
@@ -111,7 +112,8 @@ class AStarPlanner(Node):
 
     def astar(self, start, goal):
         """
-        A* pathfinding algorithm for 3D space.
+        Run A* pathfinding in 3D space.
+
         Returns list of (x, y, z) waypoints.
         """
         # Convert to grid coordinates
@@ -134,7 +136,7 @@ class AStarPlanner(Node):
             return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2)
         
         def get_neighbors(pos):
-            """Get 26-connected neighbors (all directions in 3D)"""
+            """Get 26-connected neighbors (all directions in 3D)."""
             neighbors = []
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
@@ -193,7 +195,7 @@ class AStarPlanner(Node):
         return None  # No path found
 
     def simplify_path(self, path):
-        """Remove unnecessary intermediate waypoints"""
+        """Remove unnecessary intermediate waypoints."""
         if len(path) <= 2:
             return path
         
@@ -224,7 +226,7 @@ class AStarPlanner(Node):
         return simplified
 
     def publish_path_visualization(self):
-        """Publish path for RViz visualization"""
+        """Publish path for RViz visualization."""
         path_msg = Path()
         path_msg.header.stamp = self.get_clock().now().to_msg()
         path_msg.header.frame_id = 'map'
@@ -241,7 +243,7 @@ class AStarPlanner(Node):
         self.path_pub.publish(path_msg)
 
     def publish_setpoint(self):
-        """Publish current waypoint setpoint"""
+        """Publish current waypoint setpoint."""
         if not self.path or self.current_pose is None:
             return
         
