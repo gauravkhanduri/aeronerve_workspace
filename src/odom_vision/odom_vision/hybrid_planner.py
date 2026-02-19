@@ -33,7 +33,7 @@ class HybridPlanner(Node):
         self.declare_parameter('repulsion_gain', 3.0)  # APF repulsion strength
         self.declare_parameter('attraction_gain', 1.0)  # APF attraction strength
         self.declare_parameter('apf_step_size', 1.0)  # meters per APF step
-        self.declare_parameter('replan_distance_threshold', 2.0)  # replan if obstacle closer than this
+        self.declare_parameter('replan_distance_threshold', 2.0)  # replan if obstacle is closer
 
         self.goal_x = self.get_parameter('goal_x').value
         self.goal_y = self.get_parameter('goal_y').value
@@ -109,10 +109,11 @@ class HybridPlanner(Node):
         self.obstacle_distance = msg.data
 
         # Replan if obstacle is very close and blocking the path
-        if (self.obstacle_distance is not None and
-            self.obstacle_distance < self.replan_distance_threshold and
-            self.path_planned):
-            self.get_logger().warn(f'Obstacle detected at {self.obstacle_distance:.2f}m - replanning...')
+        if (self.obstacle_distance is not None
+                and self.obstacle_distance < self.replan_distance_threshold
+                and self.path_planned):
+            self.get_logger().warn(
+                f'Obstacle at {self.obstacle_distance:.2f}m - replanning...')
             self.plan_path()
 
     def plan_path(self):
@@ -127,7 +128,8 @@ class HybridPlanner(Node):
         )
         goal = (self.goal_x, self.goal_y, self.goal_z)
 
-        self.get_logger().info(f'Planning path from ({start[0]:.2f}, {start[1]:.2f}, {start[2]:.2f}) to {goal}')
+        self.get_logger().info(
+            f'Planning path from ({start[0]:.2f}, {start[1]:.2f}, {start[2]:.2f}) to {goal}')
 
         # Run A*
         path = self.astar(start, goal)
@@ -242,10 +244,11 @@ class HybridPlanner(Node):
                 (next_pt[1]-prev[1])**2 +
                 (next_pt[2]-prev[2])**2
             )
-            dist_via = (
-                math.sqrt((curr[0]-prev[0])**2 + (curr[1]-prev[1])**2 + (curr[2]-prev[2])**2) +
-                math.sqrt((next_pt[0]-curr[0])**2 + (next_pt[1]-curr[1])**2 + (next_pt[2]-curr[2])**2)
-            )
+            d1 = math.sqrt(
+                (curr[0]-prev[0])**2 + (curr[1]-prev[1])**2 + (curr[2]-prev[2])**2)
+            d2 = math.sqrt(
+                (next_pt[0]-curr[0])**2 + (next_pt[1]-curr[1])**2 + (next_pt[2]-curr[2])**2)
+            dist_via = d1 + d2
 
             # Keep point if path is significantly longer via intermediate
             if dist_via > dist_direct * 1.05:
@@ -287,7 +290,8 @@ class HybridPlanner(Node):
 
         # Repulsion force from obstacle (assume obstacle in front, along drone's heading)
         if self.obstacle_distance is not None and self.obstacle_distance < self.obstacle_threshold:
-            repulsion = self.repulsion_gain * (1.0 / self.obstacle_distance - 1.0 / self.obstacle_threshold)
+            repulsion = self.repulsion_gain * (
+                1.0 / self.obstacle_distance - 1.0 / self.obstacle_threshold)
             repulsion = max(repulsion, 0.0)
 
             # Get drone's current yaw from orientation
@@ -337,8 +341,11 @@ class HybridPlanner(Node):
             (self.current_pose.position.z - waypoint[2])**2
         )
 
+        cx = self.current_pose.position.x
+        cy = self.current_pose.position.y
+        cz = self.current_pose.position.z
         self.get_logger().info(
-            f'Current: ({self.current_pose.position.x:.2f}, {self.current_pose.position.y:.2f}, {self.current_pose.position.z:.2f}), '
+            f'Current: ({cx:.2f}, {cy:.2f}, {cz:.2f}), '
             f'Target waypoint {self.current_waypoint_idx+1}/{len(self.path)}: '
             f'({waypoint[0]:.2f}, {waypoint[1]:.2f}, {waypoint[2]:.2f}), '
             f'distance: {dist:.2f}m',
@@ -347,7 +354,8 @@ class HybridPlanner(Node):
 
         if dist < self.waypoint_threshold:
             self.current_waypoint_idx += 1
-            self.get_logger().info(f'Waypoint {self.current_waypoint_idx}/{len(self.path)} reached')
+            self.get_logger().info(
+                f'Waypoint {self.current_waypoint_idx}/{len(self.path)} reached')
             if self.current_waypoint_idx < len(self.path):
                 waypoint = self.path[self.current_waypoint_idx]
             else:

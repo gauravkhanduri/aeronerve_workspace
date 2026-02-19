@@ -10,11 +10,11 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from geometry_msgs.msg import PoseStamped
 
 
-GRID_SIZE_M   = 10        # total grid span (meters)
-WINDOW_PX     = 800       # window size (pixels)
-SCALE         = WINDOW_PX / GRID_SIZE_M   # 80 px/m
-GRID_STEP_M   = 1         # grid line every N meters
-LABEL_STEP_M  = 1         # label every N meters
+GRID_SIZE_M = 10        # total grid span (meters)
+WINDOW_PX = 800       # window size (pixels)
+SCALE = WINDOW_PX / GRID_SIZE_M   # 80 px/m
+GRID_STEP_M = 1         # grid line every N meters
+LABEL_STEP_M = 1         # label every N meters
 
 
 def quat_to_yaw(q):
@@ -54,9 +54,9 @@ class GridController(Node):
         self.origin_x = 0.0
         self.origin_y = 0.0
 
-        self.drone_x   = 0.0
-        self.drone_y   = 0.0
-        self.drone_z   = 2.0
+        self.drone_x = 0.0
+        self.drone_y = 0.0
+        self.drone_z = 2.0
         self.drone_yaw = 0.0   # radians, ENU frame
 
         self.goal_x = None
@@ -66,16 +66,16 @@ class GridController(Node):
         self.initialized = False
 
     def _pose_cb(self, msg):
-        self.drone_x   = msg.pose.position.x
-        self.drone_y   = msg.pose.position.y
+        self.drone_x = msg.pose.position.x
+        self.drone_y = msg.pose.position.y
         self.drone_yaw = quat_to_yaw(msg.pose.orientation)
         if not self.initialized:
             self.origin_x = msg.pose.position.x
             self.origin_y = msg.pose.position.y
             self.drone_z = msg.pose.position.z
-            self.goal_x  = self.origin_x
-            self.goal_y  = self.origin_y
-            self.goal_z  = self.drone_z
+            self.goal_x = self.origin_x
+            self.goal_y = self.origin_y
+            self.goal_z = self.drone_z
             self.initialized = True
 
     def _publish(self):
@@ -101,8 +101,8 @@ def draw_grid(img, ox, oy):
     half = GRID_SIZE_M // 2
     for m in range(-half, half + 1, GRID_STEP_M):
         is_major = (m % LABEL_STEP_M == 0)
-        color    = (65, 65, 65) if is_major else (40, 40, 40)
-        thick    = 1
+        color = (65, 65, 65) if is_major else (40, 40, 40)
+        thick = 1
 
         # vertical lines (fixed world-X)
         px, _ = w2p(ox + m, oy, ox, oy)

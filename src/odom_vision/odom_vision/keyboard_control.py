@@ -74,8 +74,14 @@ def main():
         stdscr.addstr(3, 0, '')
 
         while True:
-            stdscr.addstr(4, 0, f'Target -> X: {node.target_x:7.2f} m   Y: {node.target_y:7.2f} m   Z: {node.target_z:7.2f} m   ')
-            stdscr.addstr(5, 0, f'Heading -> {math.degrees(node.current_yaw):6.1f} deg   {"Initialized" if node.initialized else "Waiting for pose..."}          ')
+            stdscr.addstr(4, 0,
+                          f'Target -> X: {node.target_x:7.2f} m'
+                          f'   Y: {node.target_y:7.2f} m'
+                          f'   Z: {node.target_z:7.2f} m   ')
+            init_str = 'Initialized' if node.initialized else 'Waiting for pose...'
+            stdscr.addstr(5, 0,
+                          f'Heading -> {math.degrees(node.current_yaw):6.1f} deg'
+                          f'   {init_str}          ')
             stdscr.refresh()
 
             key = stdscr.getch()
