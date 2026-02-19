@@ -1,4 +1,4 @@
-name: ROS 2 CI
+name: ROS 2 Humble CI
 
 on:
   push:
@@ -8,34 +8,24 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-22.04  # Required for Humble compatibility
-    
+    # Host runner is 24.04, but we will run the steps inside a 22.04 container
+    runs-on: ubuntu-latest
+    container:
+      image: ros:humble-ros-base-jammy
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Add ROS 2 Repository Manually
-        # Manually adding the repo fixes the "Unable to locate package" error
+      - name: Install Dependencies
+        # This installs everything listed in your package.xml
         run: |
-          sudo apt update && sudo apt install curl gnupg2 lsb-release -y
-          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-          sudo apt update
-
-      - name: Setup ROS 2 Humble
-        uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: humble
-
-      - name: Install Build Tools and Dependencies
-        run: |
-          # Use rosdep to install everything listed in your package.xml
-          sudo rosdep init || true
+          apt-get update
           rosdep update
           rosdep install --from-paths src --ignore-src -y --rosdistro humble
 
       - name: Colcon Build
+        # We source the ROS environment inside the container before building
         run: |
-          source /opt/ros/humble/setup.bash
-          # --event-handlers console_direct+ shows real-time errors in logs
+          . /opt/ros/humble/setup.sh
           colcon build --event-handlers console_direct+ --symlink-install
