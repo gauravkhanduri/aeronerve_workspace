@@ -18,46 +18,38 @@ from std_msgs.msg import Float32
 class APFPlanner(Node):
 
     def __init__(self):
-        super().__init__('apf_planner')
+        super().__init__("apf_planner")
         # Parameters
-        self.declare_parameter('goal_x', 30.0)
-        self.declare_parameter('goal_y', 5.0)
-        self.declare_parameter('goal_z', 5.0)
-        self.declare_parameter('publish_rate', 20.0)
-        self.declare_parameter('obstacle_threshold', 2.0)  # meters
-        self.declare_parameter('repulsion_gain', 2.0)
-        self.declare_parameter('attraction_gain', 1.0)
-        self.goal_x = self.get_parameter('goal_x').value
-        self.goal_y = self.get_parameter('goal_y').value
-        self.goal_z = self.get_parameter('goal_z').value
-        self.publish_rate = self.get_parameter('publish_rate').value
-        self.obstacle_threshold = self.get_parameter('obstacle_threshold').value
-        self.repulsion_gain = self.get_parameter('repulsion_gain').value
-        self.attraction_gain = self.get_parameter('attraction_gain').value
+        self.declare_parameter("goal_x", 30.0)
+        self.declare_parameter("goal_y", 5.0)
+        self.declare_parameter("goal_z", 5.0)
+        self.declare_parameter("publish_rate", 20.0)
+        self.declare_parameter("obstacle_threshold", 2.0)  # meters
+        self.declare_parameter("repulsion_gain", 2.0)
+        self.declare_parameter("attraction_gain", 1.0)
+        self.goal_x = self.get_parameter("goal_x").value
+        self.goal_y = self.get_parameter("goal_y").value
+        self.goal_z = self.get_parameter("goal_z").value
+        self.publish_rate = self.get_parameter("publish_rate").value
+        self.obstacle_threshold = self.get_parameter("obstacle_threshold").value
+        self.repulsion_gain = self.get_parameter("repulsion_gain").value
+        self.attraction_gain = self.get_parameter("attraction_gain").value
         self.current_pose = None
         self.obstacle_distance = None
         # Subscribers
         self.pose_sub = self.create_subscription(
-            PoseStamped,
-            '/mavros/local_position/pose',
-            self.pose_callback,
-            10
+            PoseStamped, "/mavros/local_position/pose", self.pose_callback, 10
         )
         self.distance_sub = self.create_subscription(
-            Float32,
-            '/depth_distance',
-            self.distance_callback,
-            10
+            Float32, "/depth_distance", self.distance_callback, 10
         )
         # Publisher
         self.setpoint_pub = self.create_publisher(
-            PoseStamped,
-            '/mavros/setpoint_position/local',
-            10
+            PoseStamped, "/mavros/setpoint_position/local", 10
         )
         self.timer = self.create_timer(1.0 / self.publish_rate, self.publish_setpoint)
-        self.get_logger().info('APF Planner started')
-        self.get_logger().info(f'Goal: ({self.goal_x}, {self.goal_y}, {self.goal_z})')
+        self.get_logger().info("APF Planner started")
+        self.get_logger().info(f"Goal: ({self.goal_x}, {self.goal_y}, {self.goal_z})")
 
     def pose_callback(self, msg):
         """Store latest pose."""
@@ -87,7 +79,7 @@ class APFPlanner(Node):
             # Assume repulsion along drone's forward direction (X axis in local frame)
             fx -= repulsion
             self.get_logger().info(
-                f'Obstacle detected at {self.obstacle_distance:.2f}m, repulsion: {repulsion:.2f}'
+                f"Obstacle detected at {self.obstacle_distance:.2f}m, repulsion: {repulsion:.2f}"
             )
         # Normalize total force
         norm = math.sqrt(fx**2 + fy**2 + fz**2)
@@ -103,7 +95,7 @@ class APFPlanner(Node):
         # Publish setpoint
         pose = PoseStamped()
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.header.frame_id = 'map'
+        pose.header.frame_id = "map"
         pose.pose.position.x = next_x
         pose.pose.position.y = next_y
         pose.pose.position.z = next_z
@@ -123,5 +115,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

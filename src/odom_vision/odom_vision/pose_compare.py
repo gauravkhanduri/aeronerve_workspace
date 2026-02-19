@@ -17,36 +17,26 @@ from rclpy.node import Node
 class PoseCompare(Node):
 
     def __init__(self):
-        super().__init__('pose_compare')
+        super().__init__("pose_compare")
 
         self.vision_pose = None
         self.local_pose = None
 
         # Subscribe to vision pose (what we send to MAVROS)
-        self.create_subscription(
-            PoseStamped,
-            '/mavros/vision_pose/pose',
-            self.vision_cb,
-            10
-        )
+        self.create_subscription(PoseStamped, "/mavros/vision_pose/pose", self.vision_cb, 10)
 
         # Subscribe to local position (fused result from EKF)
-        self.create_subscription(
-            PoseStamped,
-            '/mavros/local_position/pose',
-            self.local_cb,
-            10
-        )
+        self.create_subscription(PoseStamped, "/mavros/local_position/pose", self.local_cb, 10)
 
         # Timer to print comparison every second
         self.create_timer(1.0, self.compare)
 
-        self.get_logger().info('=' * 60)
-        self.get_logger().info('Pose Comparison Node Started')
+        self.get_logger().info("=" * 60)
+        self.get_logger().info("Pose Comparison Node Started")
         self.get_logger().info(
-            'Comparing: /mavros/vision_pose/pose vs /mavros/local_position/pose'
+            "Comparing: /mavros/vision_pose/pose vs /mavros/local_position/pose"
         )
-        self.get_logger().info('=' * 60)
+        self.get_logger().info("=" * 60)
 
     def vision_cb(self, msg: PoseStamped):
         """Store latest vision pose."""
@@ -79,14 +69,14 @@ class PoseCompare(Node):
 
     def compare(self):
         """Log position and orientation difference between vision and local poses."""
-        self.get_logger().info('-' * 60)
+        self.get_logger().info("-" * 60)
 
         if self.vision_pose is None:
-            self.get_logger().warn('No vision_pose received! Check bridge/publisher.')
+            self.get_logger().warn("No vision_pose received! Check bridge/publisher.")
             return
 
         if self.local_pose is None:
-            self.get_logger().warn('No local_position received! Check MAVROS connection.')
+            self.get_logger().warn("No local_position received! Check MAVROS connection.")
             return
 
         # Position comparison
@@ -96,28 +86,28 @@ class PoseCompare(Node):
         dx = vp.x - lp.x
         dy = vp.y - lp.y
         dz = vp.z - lp.z
-        pos_diff = math.sqrt(dx*dx + dy*dy + dz*dz)
+        pos_diff = math.sqrt(dx * dx + dy * dy + dz * dz)
 
-        self.get_logger().info(f'VISION POSE:  X={vp.x:+7.3f}  Y={vp.y:+7.3f}  Z={vp.z:+7.3f}')
-        self.get_logger().info(f'LOCAL POSE:   X={lp.x:+7.3f}  Y={lp.y:+7.3f}  Z={lp.z:+7.3f}')
-        diff_str = f'dX={dx:+7.3f} dY={dy:+7.3f} dZ={dz:+7.3f}  |d|={pos_diff:.4f}m'
-        self.get_logger().info(f'DIFFERENCE:  {diff_str}')
+        self.get_logger().info(f"VISION POSE:  X={vp.x:+7.3f}  Y={vp.y:+7.3f}  Z={vp.z:+7.3f}")
+        self.get_logger().info(f"LOCAL POSE:   X={lp.x:+7.3f}  Y={lp.y:+7.3f}  Z={lp.z:+7.3f}")
+        diff_str = f"dX={dx:+7.3f} dY={dy:+7.3f} dZ={dz:+7.3f}  |d|={pos_diff:.4f}m"
+        self.get_logger().info(f"DIFFERENCE:  {diff_str}")
 
         # Orientation comparison
         v_roll, v_pitch, v_yaw = self.quaternion_to_euler(self.vision_pose.orientation)
         l_roll, l_pitch, l_yaw = self.quaternion_to_euler(self.local_pose.orientation)
 
-        self.get_logger().info(f'VISION YAW:   {math.degrees(v_yaw):+7.2f}°')
-        self.get_logger().info(f'LOCAL YAW:    {math.degrees(l_yaw):+7.2f}°')
-        self.get_logger().info(f'YAW DIFF:     {math.degrees(v_yaw - l_yaw):+7.2f}°')
+        self.get_logger().info(f"VISION YAW:   {math.degrees(v_yaw):+7.2f}°")
+        self.get_logger().info(f"LOCAL YAW:    {math.degrees(l_yaw):+7.2f}°")
+        self.get_logger().info(f"YAW DIFF:     {math.degrees(v_yaw - l_yaw):+7.2f}°")
 
         # Status check
         if pos_diff < 0.1:
-            self.get_logger().info('✓ Position alignment: GOOD')
+            self.get_logger().info("✓ Position alignment: GOOD")
         elif pos_diff < 0.5:
-            self.get_logger().warn('⚠ Position alignment: ACCEPTABLE')
+            self.get_logger().warn("⚠ Position alignment: ACCEPTABLE")
         else:
-            self.get_logger().error('✗ Position alignment: POOR - Check frame transforms!')
+            self.get_logger().error("✗ Position alignment: POOR - Check frame transforms!")
 
 
 def main(args=None):
@@ -133,5 +123,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
