@@ -21,6 +21,7 @@ jobs:
         # This installs everything listed in your package.xml
         run: |
           apt-get update
+          apt-get install -y python3-colcon-common-extensions
           rosdep update
           rosdep install --from-paths src --ignore-src -y --rosdistro humble
 
@@ -28,4 +29,11 @@ jobs:
         # We source the ROS environment inside the container before building
         run: |
           . /opt/ros/humble/setup.sh
-          colcon build --event-handlers console_direct+ --symlink-install
+          colcon build --event-handlers console_direct+
+
+      - name: Colcon Test
+        run: |
+          . /opt/ros/humble/setup.sh
+          . install/setup.sh
+          colcon test --event-handlers console_direct+
+          colcon test-result --verbose
