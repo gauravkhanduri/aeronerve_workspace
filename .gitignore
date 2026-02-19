@@ -1,0 +1,11 @@
+#add build install and log files to gitignore
+build/
+install/
+logs/
+#add node modules to gitignore
+.vscode/
+install_isolated/
+build_isolated/
+*.pyc
+__pycache__/
+*.log
