@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-import threading
 import math
-import numpy as np
-import cv2
+import threading
 
+import cv2
+from geometry_msgs.msg import PoseStamped
+import numpy as np
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-from geometry_msgs.msg import PoseStamped
+from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 
 
 GRID_SIZE_M = 10        # total grid span (meters)
@@ -38,6 +38,7 @@ def p2w(px, py, ox, oy):
 
 
 class GridController(Node):
+
     def __init__(self):
         super().__init__('grid_controller')
 
@@ -177,7 +178,9 @@ def main():
                 gx, gy = w2p(node.goal_x, node.goal_y, node.origin_x, node.origin_y)
                 cv2.drawMarker(img, (gx, gy), (0, 0, 255),
                                cv2.MARKER_CROSS, 22, 2)
-                label = f'Goal ({node.goal_x - node.origin_x:+.1f}, {node.goal_y - node.origin_y:+.1f}) m'
+                gx_rel = node.goal_x - node.origin_x
+                gy_rel = node.goal_y - node.origin_y
+                label = f'Goal ({gx_rel:+.1f}, {gy_rel:+.1f}) m'
                 cv2.putText(img, label, (gx + 6, gy - 6),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.38, (0, 80, 255), 1)
 

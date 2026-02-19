@@ -3,9 +3,9 @@ import curses
 import math
 import threading
 
+from geometry_msgs.msg import PoseStamped
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import PoseStamped
 
 
 def quat_to_yaw(q):
@@ -15,6 +15,7 @@ def quat_to_yaw(q):
 
 
 class KeyboardController(Node):
+
     def __init__(self):
         super().__init__('keyboard_controller')
 
