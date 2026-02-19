@@ -9,3 +9,4 @@ build_isolated/
 *.pyc
 __pycache__/
 *.log
+logs/
