@@ -21,7 +21,7 @@ jobs:
         # This installs everything listed in your package.xml
         run: |
           apt-get update
-          apt-get install -y python3-colcon-common-extensionsg directory (cwd) "/media/grv22/new/ORB-SLAM3-ROS2-Docker" does not exist. 
+          apt-get install -y python3-colcon-common-extensions 
           rosdep update
           rosdep install --from-paths src --ignore-src -y --rosdistro humble
 
