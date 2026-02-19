@@ -8,7 +8,7 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -27,4 +27,4 @@ jobs:
       - name: Colcon Build
         run: |
           source /opt/ros/humble/setup.bash
-          colcon build --symlink-install
+          colcon build
