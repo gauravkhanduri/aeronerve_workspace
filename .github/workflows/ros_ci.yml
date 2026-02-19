@@ -36,5 +36,5 @@ jobs:
         run: |
           . /opt/ros/humble/setup.sh
           . install/setup.sh
-          colcon test --event-handlers console_direct+
+          colcon test 
           colcon test-result --verbose
