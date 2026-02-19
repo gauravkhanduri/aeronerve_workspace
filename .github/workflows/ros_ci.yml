@@ -8,7 +8,9 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-22.04+
+    # Explicitly use 22.04 for Humble compatibility
+    runs-on: ubuntu-22.04
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -18,13 +20,27 @@ jobs:
         with:
           required-ros-distributions: humble
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
+        # This ensures the runner has the build tools required for C++/Python compilation
         run: |
           sudo apt update
-          rosdep update
-          rosdep install --from-paths src --ignore-src -y
+          sudo apt install -y python3-colcon-common-extensions python3-rosdep
+
+      - name: Initialize rosdep
+        # rosdep checks your package.xml files and installs missing libraries
+        run: |
+          if [ ! -d /etc/ros/rosdep/sources.list.d/ ]; then
+            sudo rosdep init
+          fi
+          rosdep update --include-eol-distros
+
+      - name: Install Workspace Dependencies
+        # This step is critical: it scans your 'src' folder for dependencies
+        run: |
+          rosdep install --from-paths src --ignore-src -y --rosdistro humble
 
       - name: Colcon Build
+        # We add '--event-handlers console_direct+' to see the real-time errors in GitHub logs
         run: |
           source /opt/ros/humble/setup.bash
-          colcon build
+          colcon build --event-handlers console_direct+ --symlink-install
