@@ -5,37 +5,53 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    return LaunchDescription([
-        # MAVROS node
-        ExecuteProcess(
-            cmd=[
-                'ros2', 'run', 'mavros', 'mavros_node',
-                '--ros-args', '-p', 'fcu_url:=udp://127.0.0.1:14551@'
-            ],
-            output='screen'
-        ),
-        # Gazebo bridge for odometry
-        Node(
-            package='ros_gz_bridge',
-            executable='parameter_bridge',
-            name='odom_bridge',
-            arguments=[
-                '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
-                '/rgb_camera@sensor_msgs/msg/Image@gz.msgs.Image',
-                '/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image',
-            ],
-            output='screen'
-        ),
-        Node(
-            package='odom_vision',
-            executable='odom_to_vision_pose',
-            name='odom_to_vision_pose',
-            output='screen'
-        ),
-        Node(
-            package='odom_vision',
-            executable='tf_publisher',
-            name='tf_publisher',
-            output='screen'
-        ),
-    ])
+    return LaunchDescription(
+        [
+            # MAVROS node
+            ExecuteProcess(
+                cmd=[
+                    "ros2",
+                    "run",
+                    "mavros",
+                    "mavros_node",
+                    "--ros-args",
+                    "-p",
+                    "fcu_url:=udp://127.0.0.1:14551@",
+                    "p",
+                    'plugin_allow_list:="[*]"',
+                ],
+                output="screen",
+            ),
+            # Gazebo bridge for odometry
+            Node(
+                package="ros_gz_bridge",
+                executable="parameter_bridge",
+                name="odom_bridge",
+                arguments=[
+                    "/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry",
+                    "/rgb_camera@sensor_msgs/msg/Image@gz.msgs.Image",
+                    "/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image",
+                ],
+                output="screen",
+            ),
+            Node(
+                package="odom_vision",
+                executable="odom_to_vision_pose",
+                name="odom_to_vision_pose",
+                output="screen",
+            ),
+            Node(
+                package="odom_vision",
+                executable="tf_publisher",
+                name="tf_publisher",
+                output="screen",
+            ),
+            # Publishes /depth_distance (center-pixel scalar) used by APF/hybrid planners
+            Node(
+                package="odom_vision",
+                executable="depth_distance",
+                name="depth_distance",
+                output="screen",
+            ),
+        ]
+    )

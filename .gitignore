@@ -10,3 +10,4 @@ build_isolated/
 __pycache__/
 *.log
 logs/
+.claude/

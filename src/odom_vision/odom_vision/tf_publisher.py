@@ -92,11 +92,11 @@ class TFPublisher(Node):
         t2.transform.translation.x = 0.08  # forward
         t2.transform.translation.y = 0.0
         t2.transform.translation.z = -0.05  # down
-        # 45 degree pitch down (quaternion)
+        # Horizontal (forward-facing) — no pitch rotation
         t2.transform.rotation.x = 0.0
-        t2.transform.rotation.y = 0.3827  # sin(45/2)
+        t2.transform.rotation.y = 0.0
         t2.transform.rotation.z = 0.0
-        t2.transform.rotation.w = 0.9239  # cos(45/2)
+        t2.transform.rotation.w = 1.0
         transforms.append(t2)
 
         self.static_tf_broadcaster.sendTransform(transforms)
