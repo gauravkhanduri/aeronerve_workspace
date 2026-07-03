@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 ISR Drone System Health Check
 Run this script after launching the full system to verify everything is working.

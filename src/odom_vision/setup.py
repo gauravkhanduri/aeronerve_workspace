@@ -1,3 +1,5 @@
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 from setuptools import find_packages
 from setuptools import setup
 

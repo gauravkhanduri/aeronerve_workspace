@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 Quick test: send a goal to the global planner and watch it plan.
 

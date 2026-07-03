@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 global_planner.py — Custom Nav Stack
 ======================================

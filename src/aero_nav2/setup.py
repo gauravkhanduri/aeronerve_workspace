@@ -1,3 +1,5 @@
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 from glob import glob
 
 from setuptools import find_packages, setup

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 cmd_vel_bridge — converts Nav2 /cmd_vel (Twist) to MAVROS PositionTarget.
 

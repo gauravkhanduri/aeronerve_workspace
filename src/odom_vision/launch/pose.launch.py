@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 from launch import LaunchDescription
 from launch.actions import ExecuteProcess
 from launch_ros.actions import Node

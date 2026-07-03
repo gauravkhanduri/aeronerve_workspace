@@ -1,3 +1,5 @@
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 Planner + Executor Launch File
 Launches global planner and mission executor together.

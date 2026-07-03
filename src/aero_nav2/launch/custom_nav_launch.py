@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 custom_nav_launch.py — Custom Nav Stack
 =========================================

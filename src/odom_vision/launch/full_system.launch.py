@@ -1,3 +1,5 @@
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 ISR Drone Full System Bringup
 ROS2 Humble — Launches everything needed for autonomous flight

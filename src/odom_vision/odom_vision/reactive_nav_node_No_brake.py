@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 Reactive Navigation Node for ISR Drone
 ROS2 Humble + ArduPilot GUIDED mode

@@ -1,3 +1,5 @@
+# Author: Gourav Khanduri
+# Email:  gauravkhanduri93@gmail.com
 """
 OctoMap Server Launch File for Outdoor ISR Drone
 ROS2 Humble + ZED 2i + OctoMap
