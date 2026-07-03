@@ -1,0 +1,47 @@
+<!--
+  drone_nav_bt.xml
+  ================
+  Commit-and-replan BT for RPP-based drone obstacle avoidance.
+
+  Strategy:
+  - Compute one global path at the start (with inflation_radius 2.0 m it
+    already clears all visible trees).
+  - RPP follows that committed path without stopping.
+  - Replan at most every 5 s AND only if the path has become lethal
+    (IsPathValid = false). This prevents snake-behaviour caused by
+    the costmap changing slightly every second triggering a fresh replan
+    from the current position each time.
+  - Recovery: clear costmaps → wait.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+
+      <PipelineSequence name="NavigateWithReplanning">
+        <!-- Max 0.2 Hz replan AND only if path is lethal-blocked -->
+        <RateController hz="0.2">
+          <Fallback>
+            <ReactiveSequence>
+              <Inverter><GlobalUpdatedGoal/></Inverter>
+              <IsPathValid path="{path}"/>
+            </ReactiveSequence>
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+          </Fallback>
+        </RateController>
+        <FollowPath path="{path}" controller_id="FollowPath"/>
+      </PipelineSequence>
+
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <ClearEntireCostmap name="ClearLocal"
+            service_name="local_costmap/clear_entirely_local_costmap"/>
+          <ClearEntireCostmap name="ClearGlobal"
+            service_name="global_costmap/clear_entirely_global_costmap"/>
+          <Wait name="WaitRecovery" wait_duration="3"/>
+        </RoundRobin>
+      </ReactiveFallback>
+
+    </RecoveryNode>
+  </BehaviorTree>
+</root>

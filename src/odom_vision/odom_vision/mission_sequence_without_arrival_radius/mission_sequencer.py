@@ -26,8 +26,8 @@ class MissionSequencer(Node):
 
         self.declare_parameter("mission_file", "")
         self.declare_parameter("tcp_port", 0)  # 0 = disabled (use file)
-        self.declare_parameter("arrival_radius", 1.0)  # metres — hops shorter than this skip Nav2 (yaw+stabilize only)
-        self.declare_parameter("altitude_tolerance", 0.3)  # metres
+        self.declare_parameter("arrival_radius", 0.3)  # metres
+        self.declare_parameter("altitude_tolerance", 1.5)  # metres
         self.declare_parameter("step_hz", 10.0)
         self.declare_parameter("stabilize_s", 2.0)
         self.declare_parameter("precision_radius", 0.3)
@@ -224,9 +224,10 @@ class MissionSequencer(Node):
         cx = self._current_pose.pose.position.x
         cy = self._current_pose.pose.position.y
         leg_dist = math.hypot(x - cx, y - cy)
-        if leg_dist < self.arrival_r:
+        skip_nav_threshold = 0.5
+        if leg_dist < skip_nav_threshold:
             self.get_logger().info(
-                f"  Short hop to {label} (xy_dist={leg_dist:.2f}m < arrival_radius={self.arrival_r:.2f}m). "
+                f"  Already at {label} (xy_dist={leg_dist:.2f}m < {skip_nav_threshold}m). "
                 f"Skipping Nav2; yaw + stabilize only."
             )
             return self._finish_waypoint(x, y, z, yaw_deg, label)

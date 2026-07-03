@@ -17,7 +17,7 @@ def generate_launch_description():
                     "--ros-args",
                     "-p",
                     "fcu_url:=udp://127.0.0.1:14551@",
-                    "p",
+                    "-p",
                     'plugin_allow_list:="[*]"',
                 ],
                 output="screen",

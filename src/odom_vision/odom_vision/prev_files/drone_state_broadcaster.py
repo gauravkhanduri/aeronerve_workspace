@@ -2,17 +2,13 @@
 """
 drone_state_broadcaster.py
 
-Companion-side UDP broadcaster that streams drone state to the GCS.
+Companion-side TCP server that streams drone state to the GCS.
 
 Subscribes to:
     /mavros/local_position/pose  (geometry_msgs/PoseStamped)
     /mavros/state                (mavros_msgs/State)
 
-Broadcasts JSON at ~20 Hz to the registered GCS via UDP (NDJSON — one line per message).
-
-Registration flow:
-    1. GCS sends any datagram (e.g. b'hello\\n') to drone_ip:port
-    2. Drone records GCS source address and begins sending state datagrams to it
+Broadcasts JSON at ~5 Hz to all connected TCP clients (NDJSON — one line per message).
 
 JSON format sent to GCS:
     {
@@ -34,7 +30,7 @@ JSON format sent to GCS:
 
 Usage:
     ros2 run odom_vision drone_state_broadcaster \
-        --ros-args -p port:=5761 -p broadcast_hz:=20.0
+        --ros-args -p port:=5761 -p broadcast_hz:=5.0
 """
 
 import datetime
@@ -61,15 +57,15 @@ class DroneStateBroadcaster(Node):
         super().__init__('drone_state_broadcaster')
 
         self.declare_parameter('port', 5761)
-        self.declare_parameter('broadcast_hz', 20.0)
+        self.declare_parameter('broadcast_hz', 5.0)
 
         port         = self.get_parameter('port').value
         broadcast_hz = self.get_parameter('broadcast_hz').value
 
-        self._lock     = threading.Lock()
-        self._pose     = None
-        self._state    = None
-        self._gcs_addr = None  # (ip, port) set when GCS sends registration packet
+        self._lock    = threading.Lock()
+        self._pose    = None
+        self._state   = None
+        self._tcp_clients: list = []
 
         mavros_qos = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -83,14 +79,15 @@ class DroneStateBroadcaster(Node):
 
         self.create_timer(1.0 / broadcast_hz, self._broadcast_cb)
 
-        # Single UDP socket: bound to receive GCS registration + send datagrams back
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._sock.bind(('0.0.0.0', port))
+        self._server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._server_sock.bind(('0.0.0.0', port))
+        self._server_sock.listen(5)
 
-        threading.Thread(target=self._reg_listen_loop, daemon=True).start()
+        threading.Thread(target=self._accept_loop, daemon=True).start()
 
         self.get_logger().info(
-            f'Drone state broadcaster started — UDP port {port}, {broadcast_hz:.1f} Hz')
+            f'Drone state broadcaster started — TCP port {port}, {broadcast_hz:.1f} Hz')
 
     def _pose_cb(self, msg: PoseStamped) -> None:
         with self._lock:
@@ -100,35 +97,42 @@ class DroneStateBroadcaster(Node):
         with self._lock:
             self._state = msg
 
-    def _reg_listen_loop(self) -> None:
-        """Wait for GCS registration datagrams and record the sender address."""
-        self.get_logger().info('UDP: waiting for GCS registration packet...')
+    def _accept_loop(self) -> None:
+        self.get_logger().info('TCP server: waiting for GCS connections...')
         while True:
             try:
-                _, addr = self._sock.recvfrom(1024)
+                conn, addr = self._server_sock.accept()
                 with self._lock:
-                    if self._gcs_addr != addr:
-                        self._gcs_addr = addr
-                        self.get_logger().info(f'GCS registered: {addr[0]}:{addr[1]}')
-            except OSError:
+                    self._tcp_clients.append(conn)
+                self.get_logger().info(f'GCS connected: {addr[0]}:{addr[1]}')
+            except Exception as e:
+                self.get_logger().error(f'Accept error: {e}')
                 break
 
     def _broadcast_cb(self) -> None:
         with self._lock:
-            pose     = self._pose
-            state    = self._state
-            gcs_addr = self._gcs_addr
+            pose    = self._pose
+            state   = self._state
+            clients = list(self._tcp_clients)
 
-        if gcs_addr is None:
+        if not clients:
             return
 
         payload = self._build_payload(pose, state)
         line    = (json.dumps(payload) + '\n').encode()
 
-        try:
-            self._sock.sendto(line, gcs_addr)
-        except OSError as e:
-            self.get_logger().warning(f'UDP send error: {e}')
+        dead = []
+        for conn in clients:
+            try:
+                conn.sendall(line)
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                dead.append(conn)
+
+        if dead:
+            with self._lock:
+                for conn in dead:
+                    self._tcp_clients.remove(conn)
+            self.get_logger().info(f'{len(dead)} GCS client(s) disconnected.')
 
     def _build_payload(self, pose: PoseStamped, state: State) -> dict:
         ts = datetime.datetime.utcnow().isoformat() + 'Z'
